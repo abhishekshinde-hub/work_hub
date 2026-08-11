@@ -1,0 +1,19 @@
+from db_connection import Base
+from enum import Enum
+from sqlalchemy import Column,Integer,String,Boolean
+# class Role(str, Enum) : 
+#     admin = "admin"
+#     manager = "manager"
+#     developer = "developer"
+class User(Base) :
+    __tablename__ = 'users'   
+    user_id = Column(Integer,primary_key=True,index=True, autoincrement= True)
+    name = Column(String,nullable=False)
+    email_id = Column(String,unique=True,index= True,nullable = False)
+    username = Column(String,unique=True,index = True, nullable = False)
+    password = Column(String, nullable = False)
+    role = Column(String)
+    mobile_no = Column(String,unique=True, nullable = False)
+    Gender = Column(String, nullable = False )
+    is_active = Column(Boolean,default=True,nullable=False)\
+   
