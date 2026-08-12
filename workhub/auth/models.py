@@ -14,6 +14,6 @@ class User(Base) :
     password = Column(String, nullable = False)
     role = Column(String)
     mobile_no = Column(String,unique=True, nullable = False)
-    Gender = Column(String, nullable = False )
+    gender = Column(String, nullable = False )
     is_active = Column(Boolean,default=True,nullable=False)\
    

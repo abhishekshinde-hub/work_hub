@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum
 
 class Role(str,Enum) : 
@@ -10,8 +10,12 @@ class Gender(str,Enum) :
     Female = "Female"
 class CreateUser(BaseModel) :
     name : str
-    email : str
+    email_id : str
+    mobile_no :str
     username :str
-    password :str
+    password :str = Field(min_length=8)
     gender : Gender
-    role : Role.developer
+    role : Role = Role.developer
+class LoginUser(BaseModel):
+    username : str
+    password : str
