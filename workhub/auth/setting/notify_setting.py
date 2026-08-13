@@ -20,3 +20,4 @@ def send_reset_link(user_email : str,reset_link : str) :
         server.starttls()  # Secure connection
         server.login(SMTP_USER, SMTP_PASSWORD)
         server.send_message(msg)
+        print("ok")
