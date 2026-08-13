@@ -1,14 +1,15 @@
-
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+
 from workhub.auth.models import User
 from workhub.auth.setting import auth_setting
-from ..schemas import CreateUser
+from workhub.auth.setting.notify_setting import send_reset_link
 from workhub.db_connection import get_db
 
-from fastapi.security import OAuth2PasswordRequestForm
+from ..schemas import CreateUser
 
-router = APIRouter(tags = ["User Authentication"])
+router = APIRouter(tags=["User Authentication"])
 
 
 @router.post("/register")
@@ -56,14 +57,13 @@ def get_user(username, db):
     get_user_data = db.query(User).filter(User.username == username).first()
 
     if get_user_data:
-       if  get_user_data.is_active:
-        return get_user_data
-       else : 
-          raise HTTPException(detail="User is deactivated", status_code=403)
-
+        if get_user_data.is_active:
+            return get_user_data
+        else:
+            raise HTTPException(detail="User is deactivated", status_code=403)
 
     # if user not exist then we will have a error
-    
+
     raise HTTPException(detail="Username not found", status_code=404)
 
 
@@ -88,10 +88,25 @@ def login(
     # create token() It taker userdata in string so that it can make sub for token sub always be string value
 
     return {"access_token": token, "token_type": "bearer"}
-@router.post("/forgot_password/{username}")
-def forgot_password(username:str,db : Session = Depends(get_db)) :
-   user_data = get_user(username, db)
-   user_data = {"sub" : user_data.username}
-   token = auth_setting.create_token(user_data,15)
 
+
+@router.post("/forgot_password/{username}")
+def forgot_password(username: str, db: Session = Depends(get_db)):
+    get_user_data = get_user(username, db)
+    user_data = {"sub": get_user_data.username}
+    token = auth_setting.create_token(user_data, 15)
+    send_reset_link(
+        get_user_data.email_id, f"http://127.0.0.1:8000/reset_password?{token}"
+    )
+
+
+@router.post("/reset_password")
+def user_reset_password(token: str, new_password: str, db: Session = Depends(get_db)):
+    username = auth_setting.verify_token(token)
     
+    user_data = db.query(User).filter(User.username == username).first()
+    hashed_password = auth_setting.password_hash(new_password)
+    user_data.password = hashed_password
+    db.commit()
+    db.refresh(user_data)
+    return {"msg": "Password reset successful"}
