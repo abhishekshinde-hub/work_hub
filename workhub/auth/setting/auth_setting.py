@@ -45,7 +45,7 @@ def create_token(data: dict, expire_time: timedelta | None = None):
     jwt_payload = data.copy()
 
     if expire_time:
-        token_expire_time = datetime.now(timezone.utc) + expire_time
+        token_expire_time = datetime.now(timezone.utc) +  timedelta(minutes=expire_time)
     else:
         token_expire_time = datetime.now(timezone.utc) + timedelta(minutes=15)
     try:
@@ -57,7 +57,7 @@ def create_token(data: dict, expire_time: timedelta | None = None):
         )
 
 
-def verify_token(token: str = Depends(Oauth_scheme), db: Session = Depends(get_db)):
+def verify_token(token: str = Depends(Oauth_scheme)):
 
     """
     It runs when user try to login at this time it decrypt user access token like expire time and other details
@@ -77,9 +77,4 @@ def verify_token(token: str = Depends(Oauth_scheme), db: Session = Depends(get_d
     except jwt.PyJWTError as e:
         print("Toked decoded time error =>", e)
         raise HTTPException(status_code=401, detail="Could not validate token")
-    user_data = db.query(User).filter(User.username == username).first()
-    if not user_data:
-        raise HTTPException(
-            detail="user is not exist", status_code=status.HTTP_404_NOT_FOUND
-        )
-    return user_data
+    return username
