@@ -1,4 +1,4 @@
-from db_connection import Base
+from workhub.db_connection import Base
 from enum import Enum
 from sqlalchemy import Column,Integer,String,Boolean
 # class Role(str, Enum) : 
@@ -15,5 +15,5 @@ class User(Base) :
     role = Column(String)
     mobile_no = Column(String,unique=True, nullable = False)
     gender = Column(String, nullable = False )
-    is_active = Column(Boolean,default=True,nullable=False)\
+    is_active = Column(Boolean,default=True,nullable=False)
    

@@ -5,4 +5,5 @@ sqlalchemy
 alembic
 psycopg2-binary
 pwdlib[argon2]
-jwt
+pyjwt
+python-multipart
