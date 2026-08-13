@@ -72,7 +72,19 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """
-    This funtion have login realted logic for login I used jwt and Oauth2
+    Login endpoint.
+
+    - Get user from DB using username
+    - Verify password with stored hash
+    - If valid, create JWT token (OAuth2)
+    - Return token for authentication
+
+    Args:
+        form_data: username and password from request
+        db: database session
+
+    Returns:
+        JWT token string
     """
     user_data = get_user(
         form_data.username, db
@@ -92,6 +104,22 @@ def login(
 
 @router.post("/forgot_password/{username}")
 def forgot_password(username: str, db: Session = Depends(get_db)):
+    """
+    Forgot password endpoint.
+
+    - Check if user exists in DB using username
+    - Create a short-lived token (15 min)
+    - Build reset link with that token
+    - Send reset link to user's email
+
+    Args:
+        username: user account name
+        db: database session
+
+    Returns:
+        None (sends email with reset link)
+    """
+
     get_user_data = get_user(username, db)
     user_data = {"sub": get_user_data.username}
     token = auth_setting.create_token(user_data, 15)
@@ -102,8 +130,24 @@ def forgot_password(username: str, db: Session = Depends(get_db)):
 
 @router.post("/reset_password")
 def user_reset_password(token: str, new_password: str, db: Session = Depends(get_db)):
+    """
+    Reset password endpoint.
+
+    - Verify token and get username
+    - Find user in DB
+    - Hash the new password
+    - Update user record and commit changes
+
+    Args:
+        token: JWT token from reset link
+        new_password: new password string
+        db: database session
+
+    Returns:
+        dict with success message
+    """
     username = auth_setting.verify_token(token)
-    
+
     user_data = db.query(User).filter(User.username == username).first()
     hashed_password = auth_setting.password_hash(new_password)
     user_data.password = hashed_password
