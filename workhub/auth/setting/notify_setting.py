@@ -5,3 +5,5 @@ def send_reset_link(user_email : str,reset_link : str) :
     msg["subject"] = "Password reset link"
     msg["From"] = "workhub@gmail.com"
     msg["To"] = user_email
+
+    
