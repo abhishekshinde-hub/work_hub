@@ -1,8 +1,10 @@
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
-
+import os
 from sqlalchemy.orm import sessionmaker, declarative_base
+load_dotenv()
 """It's a url for db connection the take db_name,driver_name,username,password and port ,host ,db_name"""
-db_url = 'postgresql+psycopg2://workhub:radheradhe@localhost:5432/workhub_db'
+db_url = os.getenv("database_url")
 
 engine = create_engine(db_url)
 
