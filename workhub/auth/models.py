@@ -1,7 +1,7 @@
 from workhub.db_connection import Base
 from enum import Enum
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, ForeignKey,Integer,String,Boolean,
+from sqlalchemy import Column, ForeignKey,Integer,String,Boolean
 # class Role(str, Enum) : 
 #     admin = "admin"
 #     manager = "manager"
