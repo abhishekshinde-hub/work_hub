@@ -58,7 +58,7 @@ def create_token(data: dict, expire_time: timedelta | None = None):
 
 
 def verify_token(token: str = Depends(Oauth_scheme)):
-
+    print("bhia token aaya",token)
     """
     It runs when user try to login at this time it decrypt user access token like expire time and other details
     """
@@ -78,3 +78,4 @@ def verify_token(token: str = Depends(Oauth_scheme)):
         print("Toked decoded time error =>", e)
         raise HTTPException(status_code=401, detail="Could not validate token")
     return username
+
