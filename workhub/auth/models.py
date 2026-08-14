@@ -17,7 +17,7 @@ class User(Base) :
     mobile_no = Column(String,unique=True, nullable = False)
     gender = Column(String, nullable = False )
     is_active = Column(Boolean,default=True,nullable=False)
-    refresh_token = relationship("Refreshtoken", back_populates= "user")
+    refresh_token = relationship("RefreshToken", back_populates= "user")
 
 class RefreshToken(Base) : 
     __tablename__ = "refresh_token"
