@@ -1,11 +1,11 @@
-    from workhub.db_connection import Base
-    from enum import Enum
-    from sqlalchemy.orm import relationship
-    from sqlalchemy import Column, ForeignKey,Integer,String,Boolean,
-    # class Role(str, Enum) : 
-    #     admin = "admin"
-    #     manager = "manager"
-    #     developer = "developer"
+from workhub.db_connection import Base
+from enum import Enum
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey,Integer,String,Boolean,
+# class Role(str, Enum) : 
+#     admin = "admin"
+#     manager = "manager"
+#     developer = "developer"
     class User(Base) :
         __tablename__ = 'users'   
         user_id = Column(Integer,primary_key=True,index=True, autoincrement= True)
