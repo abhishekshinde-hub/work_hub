@@ -1,13 +1,21 @@
+import jwt
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import HTTPBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from workhub.auth.models import User
+
+from workhub.auth.models import RefreshToken, User
 from workhub.auth.setting import auth_setting
 from workhub.auth.setting.notify_setting import send_reset_link
 from workhub.db_connection import get_db
+
 from ..schemas import CreateUser
 
+SECRET_KEY = "i am abhishek shinde from indore"
+
 router = APIRouter(tags=["User Authentication"])
+
+bearer_scheme = HTTPBearer()
+
 
 
 @router.post("/register")
@@ -84,20 +92,30 @@ def login(
     Returns:
         JWT token string
     """
-    user_data = get_user(
+    get_user_data = get_user(
         form_data.username, db
     )  # get user => that helps us to check we the user exits
 
     auth_setting.verify_password(
-        user_data.password, form_data.password
+        get_user_data.password, form_data.password
     )  # decoding userpassword by the verify password funtion
 
-    user_data = {"sub": user_data.username}
+    user_data = {"sub": get_user_data.username}
 
-    token = auth_setting.create_token(user_data)
-    # create token() It taker userdata in string so that it can make sub for token sub always be string value
 
-    return {"access_token": token, "token_type": "bearer"}
+    access_token = auth_setting.create_token(user_data)
+    refresh_token = auth_setting.create_token(user_data,10080)
+    r_token_db =  RefreshToken(user_id = get_user_data.user_id, token = refresh_token)
+    
+    db.add(r_token_db)
+    db.commit()
+    db.refresh(r_token_db)
+    # create token() It take userdata in string so that it can make sub for token sub always be string value
+
+    return {"access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+              }
 
 
 @router.post("/forgot_password/{username}")
@@ -152,3 +170,25 @@ def user_reset_password(token: str, new_password: str, db: Session = Depends(get
     db.commit()
     db.refresh(user_data)
     return {"msg": "Password reset successful"}
+@router.post('/logout')
+def refresh_token(refresh_token : str, db : Session = Depends(get_db)) :
+    db_token = db.query(RefreshToken).filter(RefreshToken.token == refresh_token).first()
+    if not db_token:
+        raise HTTPException(status_code=404, detail="Token not found")
+    db_token.revoked = True   # mark as revoked
+    db.commit()
+    return {"msg": "Logged out successfully"}
+
+@router.post('/get_access_token')
+def get_new_access_token(refresh_token : str, db : Session = Depends(get_db)) :
+    db_token = db.query(RefreshToken).filter(RefreshToken.token == refresh_token,RefreshToken.revoked==False).first()
+    if not db_token : 
+        raise HTTPException(detail = "token not found", status_code = 404)
+    payload = jwt.decode(db_token.token, SECRET_KEY, algorithms=["HS256"])
+    payload.pop("exp")
+    print(payload)
+    access_token = auth_setting.create_token(payload)
+    return {"access_token" : access_token,
+            "token_type" : "bearer"
+            }
+
