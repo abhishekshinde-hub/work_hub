@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
 from workhub.auth.models import User
 from workhub.auth.setting import auth_setting
 from workhub.auth.setting.notify_setting import send_reset_link
 from workhub.db_connection import get_db
-
 from ..schemas import CreateUser
 
 router = APIRouter(tags=["User Authentication"])
@@ -123,7 +121,7 @@ def forgot_password(username: str, db: Session = Depends(get_db)):
     get_user_data = get_user(username, db)
     user_data = {"sub": get_user_data.username}
     token = auth_setting.create_token(user_data, 15)
-    send_reset_link(
+    return send_reset_link(
         get_user_data.email_id, f"http://127.0.0.1:8000/reset_password?{token}"
     )
 
