@@ -66,6 +66,7 @@ def verify_token(token: str = Depends(Oauth_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         username = payload.get("sub")
+        role = payload.get("role")
 
         print("this user name =", username)
         if not username:
@@ -77,5 +78,5 @@ def verify_token(token: str = Depends(Oauth_scheme)):
     except jwt.PyJWTError as e:
         print("Toked decoded time error =>", e)
         raise HTTPException(status_code=401, detail="Could not validate token")
-    return username
+    return {"username" : username, "role" : role}
 
