@@ -69,6 +69,7 @@ def verify_token(token: str = Depends(Oauth_scheme)):
         role = payload.get("role")
 
         print("this user name =", username)
+        print("role of the user",role)
         if not username:
             raise HTTPException(
                 detail="Invalid token", status_code=status.HTTP_401_UNAUTHORIZED
