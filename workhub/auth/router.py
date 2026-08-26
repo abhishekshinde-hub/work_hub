@@ -37,4 +37,4 @@ def refresh_token(refresh_token: str, db: Session = Depends(get_db)):
 
 @router.post("/get_access_token")
 def get_new_access_token(refresh_token: str, db: Session = Depends(get_db)):
-    return service.get_new_access_token
+    return service.get_new_access_token(refresh_token,db)
