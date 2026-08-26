@@ -20,7 +20,7 @@ def make_admin(
     db: Session = Depends(get_db) ,
     current_superadmin: str = Depends(verify_token)
 ):
-    return service.service_make_admin(id, db)
+    return service.service_make_admin(id, db, current_superadmin)
 
 @router.delete("/superadmin/users/{user_id}")
 def delete_normal_user(

@@ -43,7 +43,7 @@ def service_get_all_normal_users(
         raise HTTPException(status_code=403, detail="Not authorized as superadmin")
 
     # 1. Query DB for non-admin users
-    users = db.query(User).filter(User.role != "admin" , User.username != current_superadmin["username"]).all()
+    users = db.query(User).filter(User.role.notin_(["admin","superadmin"])).all()
 
     if not users:
         raise HTTPException(status_code=404, detail="No normal users found")
@@ -55,13 +55,13 @@ def service_get_all_normal_users(
 
 def service_make_admin(
     id: int,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db),current_superadmin :dict = Depends(verify_token),
 ):
 
-    user = db.query(User).filter(User.user_id == id).first()
-    if user.role != "superadmin":
+   
+    if current_superadmin.role != "superadmin":
         raise HTTPException(status_code=403, detail="Not authorized as superadmin")
-    ...
+    user = db.query(User).filter(User.user_id == id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not user.is_active:
