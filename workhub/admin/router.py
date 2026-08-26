@@ -1,5 +1,5 @@
 from fastapi import Depends,status, APIRouter
-from workhub.admin.routers import service
+from workhub.admin import service
 from workhub.auth.setting.auth_setting import verify_token
 from workhub.db_connection import get_db
 from sqlalchemy.orm import Session
